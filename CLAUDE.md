@@ -20,6 +20,9 @@ python eda.py
 # Train SVM with MLflow experiment tracking
 python train_svm.py
 
+# Train FastText model with MLflow tracking and hyperparameter sweep
+python fasttext_models/train_fasttext.py
+
 # View MLflow dashboard to compare experiments
 mlflow ui
 ```
@@ -32,9 +35,10 @@ mlflow ui
 - Inputs: `model_output` (text), Labels: `toxicity` (binary)
 
 ### Model Architecture
-- **Feature Extraction**: TF-IDF vectorizer (max 10k-20k features, 1-2 grams)
-- **Classifier**: scikit-learn LinearSVC (linear kernel)
-- **Decision Threshold**: Customizable (default 0.0, can shift via decision_function scores for precision/recall tradeoff)
+- **Feature Extraction**: TF-IDF vectorizer (max 10k-20k features, 1-2 grams) for SVM/Tree models.
+- **Classifier**: scikit-learn LinearSVC (linear kernel).
+- **FastText Classifier**: Meta's shallow neural network with bag-of-n-grams and hierarchical softmax (trained directly on text).
+- **Decision Threshold**: Customizable across all models (SVM decision_function, Tree predict_proba, FastText predict probabilities) to shift boundaries for precision/recall trade-offs.
 
 ### Experiment Tracking
 - **Tool**: MLflow with SQLite backend (`mlflow.db`)
