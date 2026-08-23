@@ -69,9 +69,9 @@ if __name__ == "__main__":
     df_train = pd.DataFrame(dataset['train'])
     df_test = pd.DataFrame(dataset['test'])
 
-    X_train = df_train['model_output'].fillna("")
+    X_train = df_train['user_input'].fillna("")
     y_train = df_train['toxicity']
-    X_test = df_test['model_output'].fillna("")
+    X_test = df_test['user_input'].fillna("")
     y_test = df_test['toxicity']
 
     # Set experiment name
