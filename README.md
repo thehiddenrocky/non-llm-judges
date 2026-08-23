@@ -1,6 +1,6 @@
 # Toxic-SVM: Non-LLM Toxicity Judge
 
-A lightweight, high-performance toxicity classifier for chat datasets using Support Vector Machines (SVM) and Tree-Based Ensembles (XGBoost & LightGBM). This project serves as a non-LLM "judge" to evaluate the safety of model outputs from the `lmsys/toxic-chat` dataset.
+A lightweight, high-performance toxicity classifier for chat datasets using Support Vector Machines (SVM), Tree-Based Ensembles (XGBoost & LightGBM), and FastText (Meta). This project serves as a non-LLM "judge" to evaluate the safety of model outputs from the `lmsys/toxic-chat` dataset.
 
 ## Overview
 
@@ -35,12 +35,20 @@ Used the **LMSYS Toxic-Chat** dataset (`toxicchat0124` configuration), which con
      ```bash
      python tree_models/train_tree.py
      ```
+   * Run the FastText Model pipeline:
+     ```bash
+     python fasttext_models/train_fasttext.py
+     ```
 
 4. **Testing:**
-   Run the tree models' unit tests:
-   ```bash
-   python -m unittest tree_models/test_tree.py
-   ```
+   * Run the tree models' unit tests:
+     ```bash
+     python -m unittest tree_models/test_tree.py
+     ```
+   * Run the FastText model's unit tests:
+     ```bash
+     python -m unittest fasttext_models/test_fasttext.py
+     ```
 
 ## Results
 
@@ -53,10 +61,13 @@ Current performance on the `toxicchat0124` test set:
 | **XGBoost** | Sweep Best (W:6.12, Thresh:0.5) | 93.9% | 0.58 | 0.57 | 0.57 |
 | **LightGBM** | Baseline (W:1.00, Thresh:0.5) | 94.4% | 0.69 | 0.38 | 0.49 |
 | **LightGBM** | Sweep Best (W:6.12, Thresh:0.5) | 93.7% | 0.56 | 0.57 | 0.56 |
+| **FastText** | Baseline (ep:10, lr:0.1, th:0.5) | 94.0% | 0.64 | 0.37 | 0.47 |
+| **FastText** | Sweep Best (ep:20, lr:0.5, th:0.2) | 94.1% | 0.58 | 0.61 | 0.60 |
 
 ### Findings
 * **Class Imbalance & Recall:** The dataset is highly imbalanced (~7.6% toxic). While SVM achieves high accuracy and high precision, its recall is low (0.48).
 * **Tree Model Advantage:** By training XGBoost and LightGBM with custom scale positive weights (`scale_pos_weight`) and tuning the decision threshold on predicted probabilities, we boosted recall significantly up to **0.57**, providing a much more robust shield against false negatives at a very minor trade-off in accuracy.
+* **FastText Dominance:** Meta's FastText classifier trains in seconds and, when tuned with bigrams, 20 epochs, and a lower decision threshold of `0.2`, achieves a state-of-the-art recall of **0.61** and an F1-score of **0.60** without needing manual TF-IDF calculations, outperforming both the classical Tree models and the SVM on recall.
 
 ## License
 MIT
