@@ -41,4 +41,5 @@ yarl==1.24.5
 mlflow
 xgboost
 lightgbm
+fasttext-wheel
 
