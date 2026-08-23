@@ -1,3 +1,5 @@
 mlruns/
 mlflow.db
 __pycache__
+fasttext_models/__pycache__/train_fasttext.cpython-314.pyc
+__pycache__/*
