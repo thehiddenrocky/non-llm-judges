@@ -49,6 +49,10 @@ The dataset contains real-world conversations between users and AI models. To mo
      ```bash
      python fasttext_models/train_fasttext.py
      ```
+   * Run the Transformer fine-tuning pipeline (BERT-family models):
+     ```bash
+     python mlops/train_transformer.py --mode fine-tune --model_name sentence-transformers/all-MiniLM-L6-v2 --epochs 5 --batch_size 32
+     ```
 
 4. **Testing:**
    * Run the tree models' unit tests:
@@ -62,22 +66,21 @@ The dataset contains real-world conversations between users and AI models. To mo
 
 ## Results
 
-Current performance on the `toxicchat0124` test set:
+Current performance on the `toxicchat0124` test set (using corrected **`user_input`** features):
 
-| Model | Configuration | Accuracy | Precision | Recall | F1-Score |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Linear SVM** | Baseline | 95.5% | 0.81 | 0.48 | 0.60 |
-| **XGBoost** | Baseline (W:1.00, Thresh:0.5) | 94.5% | 0.70 | 0.39 | 0.50 |
-| **XGBoost** | Sweep Best (W:6.12, Thresh:0.5) | 93.9% | 0.58 | 0.57 | 0.57 |
-| **LightGBM** | Baseline (W:1.00, Thresh:0.5) | 94.4% | 0.69 | 0.38 | 0.49 |
-| **LightGBM** | Sweep Best (W:6.12, Thresh:0.5) | 93.7% | 0.56 | 0.57 | 0.56 |
-| **FastText** | Baseline (ep:10, lr:0.1, th:0.5) | 94.0% | 0.64 | 0.37 | 0.47 |
-| **FastText** | Sweep Best (ep:20, lr:0.5, th:0.2) | 94.1% | 0.58 | 0.61 | 0.60 |
+| Model | Configuration | Accuracy | Precision | Recall | F1-Score | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **MiniLM (Transformer)** | **Fine-Tuned (5 Epochs, Thresh:0.6)** | **96.79%** | **0.7803** | **0.7652** | **0.7727** | **State-of-the-Art (Deep Learning)** |
+| **Linear SVM** | GridSearch Best (Thresh:-0.3) | 95.69% | 0.7037 | 0.6823 | **0.6928** | **Best Classical ML** |
+| **FastText** | Sweep Best (ep:15, lr:0.5, th:0.2) | 95.51% | 0.7264 | 0.5939 | **0.6535** | Highly Efficient Baseline |
+| **Linear SVM** | Baseline | 95.89% | 0.8370 | 0.5249 | **0.6452** | High Precision Baseline |
+| **XGBoost** | Sweep Best (W:6.12, Thresh:0.4) | 93.51% | 0.5372 | 0.6381 | **0.5833** | Robust Ensemble |
 
 ### Findings
-* **Class Imbalance & Recall:** The dataset is highly imbalanced (~7.6% toxic). While SVM achieves high accuracy and high precision, its recall is low (0.48).
-* **Tree Model Advantage:** By training XGBoost and LightGBM with custom scale positive weights (`scale_pos_weight`) and tuning the decision threshold on predicted probabilities, we boosted recall significantly up to **0.57**, providing a much more robust shield against false negatives at a very minor trade-off in accuracy.
-* **FastText Dominance:** Meta's FastText classifier trains in seconds and, when tuned with bigrams, 20 epochs, and a lower decision threshold of `0.2`, achieves a state-of-the-art recall of **0.61** and an F1-score of **0.60** without needing manual TF-IDF calculations, outperforming both the classical Tree models and the SVM on recall.
+
+*   **Target Dissonance Resolved:** Previously, models were trained on chatbot replies (`model_output`) to predict prompt toxicity (`toxicity`), causing models to map polite refusals to toxic labels. Switching features to **`user_input`** instantly broke the F1-score ceiling, boosting baseline SVM F1-score from **0.60 to 0.65** and optimized SVM to **0.69**.
+*   **Transformer Dominance (MiniLM):** Fine-tuning a lightweight, local, 22M-parameter **MiniLM** model for 5 epochs on original user prompts completely outperformed all classical methods, achieving a production-grade **0.7727 F1-score** (78.03% Precision, 76.52% Recall). MiniLM captures deep contextual semantics, making it highly robust to complex, polite "jailbreak" attempts that fool bag-of-words (TF-IDF) classifiers.
+*   **Microsecond Latency Trade-offs:** While MiniLM represents the smartest model for production guardrails, the **Linear SVM (GridSearch Best)** provides an incredibly cheap, CPU-friendly alternative that runs in microseconds with a strong **0.69 F1-score** and high recall (0.68). 
 
 ## License
 MIT
