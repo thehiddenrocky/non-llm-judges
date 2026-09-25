@@ -22,6 +22,7 @@ def run_experiment(name, ngram_range=(1, 1), class_weight=None, threshold=0.0, m
         mlflow.log_param("max_features", max_features)
 
         # Feature Extraction
+        scaler = "RobustScaler"
         print(f"Vectorizing with ngram_range={ngram_range}, max_features={max_features}...")
         vectorizer = TfidfVectorizer(max_features=max_features, ngram_range=ngram_range, stop_words='english')
         X_train_tfidf = vectorizer.fit_transform(X_train)
