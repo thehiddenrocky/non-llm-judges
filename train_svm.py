@@ -10,6 +10,7 @@ import os
 
 # Ensure we are using a SQLite database for tracking
 mlflow.set_tracking_uri("sqlite:///mlflow.db")
+scaler = "RobustScaler"
 
 def run_experiment(name, ngram_range=(1, 1), class_weight=None, threshold=0.0, max_features=10000):
     with mlflow.start_run(run_name=name):
