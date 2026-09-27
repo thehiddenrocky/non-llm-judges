@@ -29,7 +29,8 @@ def run_experiment(name, ngram_range=(1, 1), class_weight=None, threshold=0.0, m
 
         # Model Training
         print("Fitting Linear SVM...")
-        clf = LinearSVC(random_state=42, tol=1e-5, class_weight=class_weight)
+        C = 0.5
+        clf = LinearSVC(C=C, random_state=42, tol=1e-5, class_weight=class_weight)
         clf.fit(X_train_tfidf, y_train)
 
         # Evaluation
